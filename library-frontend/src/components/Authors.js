@@ -2,7 +2,7 @@
 import React from 'react'
 import { useQuery} from '@apollo/client'
 import {ALL_AUTHORS} from '../queries'
-import AuthorForm from'./AuthorUpdateForm'
+import AuthorForm from'./BirthYearForm'
 
 const Authors = (props) => {
   const authors = useQuery(ALL_AUTHORS)
@@ -39,7 +39,7 @@ const Authors = (props) => {
         </tbody>
       </table>
 
-<AuthorForm auhtors={authors}/>
+<AuthorForm authors={authors}/>
     </div>
     
   )
