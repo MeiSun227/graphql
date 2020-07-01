@@ -6,7 +6,7 @@ const config = require('./utils/config')
 
 
 mongoose.set('useFindAndModify', false)
-mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true  })
+mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('connected to MongoDB')
   })
@@ -134,8 +134,8 @@ type Mutation {
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
+    bookCount: () => Book.collection.countDocuments(),
+    authorCount: () => Author.collection.countDocuments(),
     allBooks: (root, args) => {
 
       if (args.author && args.genres)
@@ -161,13 +161,13 @@ const resolvers = {
     }
   },
   Mutation: {
-    addBook:async (root, args) => {
+    addBook: async (root, args) => {
       let author = await Author.findOne({ name: args.author });
       if (!author) {
-          author = await new Author({ name: args.author });
-          await author.save();
+        author = await new Author({ name: args.author });
+        await author.save();
       }
-      const book = new Book({ ...args,author })
+      const book = new Book({ ...args, author })
       try {
         await book.save()
       } catch (error) {
@@ -178,23 +178,28 @@ const resolvers = {
 
       return book
     },
-    editAuthor: (root, args) => {
-      const author = authors.find(author => author.name === args.name)
+    editAuthor: async (root, args) => {
+      let author = await Author.findOne({ name: args.name });
       if (!author) {
         return null
       }
-
-      const updatedAuthor = { ...author, born: args.setBornTo}
-      authors = authors.map(author => author.name === args.name ? updatedAuthor : author)
-      return updatedAuthor
+      author.born = args.setBornTo
+      try {
+        await author.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        })
+      }
+      return author
     }
   }
 }
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-})
+    typeDefs,
+    resolvers,
+  })
 
 server.listen().then(({ url }) => {
-  console.log(`Server ready at ${url}`)
-})
+    console.log(`Server ready at ${url}`)
+  })
