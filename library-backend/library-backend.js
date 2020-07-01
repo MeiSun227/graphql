@@ -181,15 +181,13 @@ const resolvers = {
     editAuthor: async (root, args) => {
       let author = await Author.findOne({ name: args.name });
       if (!author) {
-        return null
+        throw new UserInputError("Author not found!")
       }
       author.born = args.setBornTo
       try {
         await author.save()
       } catch (error) {
-        throw new UserInputError(error.message, {
-          invalidArgs: args,
-        })
+        throw new UserInputError("Please type in year, 1xxx")
       }
       return author
     }
