@@ -1,38 +1,61 @@
 
 import React, { useState } from 'react'
-import Authors from './components/Authors'
+import {useApolloClient } from '@apollo/client'
 import Books from './components/Books'
-import NewBook from './components/NewBook'
+import LoginForm from './components/LoginForm'
+import LibraryView from './components/LibraryView'
 
-const App = () => {
-  const [page, setPage] = useState('authors')
-  
+
+const Notify = ({ errorMessage }) => {
+  if ( !errorMessage ) {
+    return null
+  }
 
   return (
-    <div>
-      <div>
-        <button onClick={() => setPage('authors')}>authors</button>
-        <button onClick={() => setPage('books')}>books</button>
-        <button onClick={() => setPage('add')}>add book</button>
-      </div>
-
-      <Authors 
-        show={page === 'authors'}
-      />
-      
-
-      <Books
-        show={page === 'books'}
-      />
-
-      <NewBook
-        show={page === 'add'}
-      />
-
-
-
+    <div style={{color: 'red'}}>
+      {errorMessage}
     </div>
   )
 }
 
+const App = () => {
+  const [token, setToken] = useState(null)
+  const client = useApolloClient()
+  const [page, setPage] = useState('authors')
+  const [errorMessage, setErrorMessage] = useState(null)
+
+
+  const logout = () => {
+    setToken(null)
+    localStorage.clear()
+    client.resetStore()
+  }
+
+  const notify =(message)=>{
+    setErrorMessage(message)
+    setTimeout(()=>{
+      setErrorMessage(null)},5000)
+    }
+
+
+  return (
+    <>
+      <div>
+        {token === null
+          ? <LoginForm setPage={setPage} token={token} setError ={notify} setToken={setToken} show={page === 'login'} />
+          : (
+            <LibraryView setPage={setPage} logout={logout} page={page} token={token} />
+          )}
+          <Notify errorMessage={errorMessage} />
+      </div>
+      <Books token={token} show={page === 'books'} />
+    </>
+
+  )
+
+}
+
+
+
 export default App
+

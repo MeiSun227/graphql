@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { EDIT_AUTHOR, ALL_AUTHORS } from '../queries'
-import Authors from './Authors'
+
 
 const AuthorForm = (props) => {
     const existingAuthor = useQuery(ALL_AUTHORS)
@@ -13,7 +13,6 @@ const AuthorForm = (props) => {
         event.preventDefault()
         editAuthor({ variables: { name, setBornTo: +born } })
         setName(existingAuthor)
-        console.log(existingAuthor)
         setBorn('')
     }
 

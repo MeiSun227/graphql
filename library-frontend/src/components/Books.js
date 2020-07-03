@@ -4,11 +4,11 @@ import {ALL_BOOKS} from '../queries'
 
 
 const Books = (props) => {
-  const books = useQuery(ALL_BOOKS,{ pollInterval: 2000})
-
+  const books= useQuery(ALL_BOOKS)
   if (!props.show) {
     return null
   }
+  
   if (books.loading) {
     return <div>loading...</div>
   }
@@ -20,7 +20,6 @@ const Books = (props) => {
       <table>
         <tbody>
           <tr>
-            <th></th>
             <th>
               author
             </th>
@@ -28,17 +27,17 @@ const Books = (props) => {
               published
             </th>
           </tr>
-          {books.data.allBooks.map(a =>
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author}</td>
-              <td>{a.published}</td>
+          {books.data.allBooks.map(book=>
+            <tr key={book.title}>
+              <td>{book.title}</td>
+              <td>{book.author.name}</td>
+              <td>{book.published}</td>
             </tr>
           )}
         </tbody>
       </table>
     </div>
-  )
+ )
 }
 
 export default Books
