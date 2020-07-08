@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ME } from '../queries'
-import { ALL_BOOKS } from '../queries'
+import { ALL_BOOKS  } from '../queries'
 import { useQuery } from '@apollo/client'
 import { useEffect } from 'react'
 import Book from './Book'
@@ -10,9 +10,12 @@ const Recommendation = (props) => {
     const user = useQuery(ME)
     const books = useQuery(ALL_BOOKS)
     const [displayBooks, setDisplayBooks]=useState(null)
- useEffect(()=>{
-     if (books.data && user.data)
-     setDisplayBooks(books.data.allBooks.filter(b => b.genres.includes(user.data.me.favoriteGenre)))
+
+    useEffect(()=>{
+     if (books.data && user.data) {
+        console.log("koira")
+        setDisplayBooks(books.data.allBooks.filter(b => b.genres.includes(user.data.me.favoriteGenre)))
+     }
  },[books.data,user.data])
 
     if (!props.show) return null;

@@ -10,7 +10,7 @@ query{
 } 
 `
 export const ALL_BOOKS = gql`
-query {
+query  {
   allBooks {
       title
       author {
@@ -74,4 +74,16 @@ query{
       favoriteGenre
   }
 }
+`
+export const GET_BOOKS_BY_GENRE = gql`
+  query allBooks($favoriteGenre: String!) {
+    allBooks(genres: $favoriteGenre) {
+      title
+      author{
+        name
+      }
+      published
+      genres
+    }
+  }
 `

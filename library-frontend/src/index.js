@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import App from './App'
 import { ApolloClient, ApolloProvider, HttpLink, InMemoryCache, gql } from '@apollo/client'
 import { setContext } from 'apollo-link-context'
+
 const authLink = setContext((_, { headers }) => {
     const token = localStorage.getItem('library-user-token')
     return { headers: { ...headers, authorization: token ? `bearer ${token}` : null, } }
