@@ -5,7 +5,6 @@ const Author = require('./models/author')
 const User = require('./models/user')
 const config = require('./utils/config')
 const jwt = require('jsonwebtoken')
-const book = require('./models/book')
 
 
 mongoose.set('useFindAndModify', false)
@@ -49,13 +48,15 @@ type Query {
   authorCount: Int!
   allBooks(author:String,genres:String):[Book!]
   allAuthors:[Author!]
+  bookList:[Book!]!
+  filterByGenres:[Book!]
   me: User
 }
 
 type Mutation {
   addBook(
       title: String!
-      published: Int
+      published: Int!
       author: String!
       genres: [String!]!
   ) : Book
@@ -78,21 +79,50 @@ const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
-    allBooks: async (root, args) => {
+    bookList: async () => {
       const books = await Book.find({})
-
-      if (args.author && args.genres)
-        return books.filter(book => book.author === args.author && book.genres.includes(args.genres));
-
-      if (args.genres)
-        return books.filter(book => book.genres.includes(args.genres));
-
-      if (args.author)
-        return books.filter(book => book.author === args.author);
-
-      else
-        return books
+      return books.map(async book => {
+        return {
+          title: book.title,
+          published: book.published,
+          genres: book.genres,
+          author: await Author.findById(book.author)
+        }
+      });
     },
+    allBooks: async (root, args) => {
+      let books = await Book.find({})
+      if (args.author && args.genres) {
+        const author = await Author.find({ name: args.author })
+        const bookslist = books.filter(book => book.author === args.author && book.genres.includes(args.genres))
+        return bookslist;
+      }
+      if (args.userToken) {
+        const decodedToken = userToken.verify(
+          auth.substring(7), JWT_SECRET
+        )
+        const currentUser = await User.findById(decodedToken.id)
+        return Book.find({ genres: { $in: [currentUser.favoriteGenre] } })
+      }
+      else if (args.author) {
+        const author = await Author.findOne({ name: args.author });
+        books = books.filter(book => {
+          return book.author.equals(author._id)
+        });
+      };
+      return books.map(async book => {
+        return {
+          title: book.title,
+          published: book.published,
+          genres: book.genres,
+          author: await Author.findById(book.author)
+        }
+      });
+    },
+    filterByGenres: async(root, args, context)=>{
+      const currentUser = context.currentUser     
+      return Book.find({ genres: { $in: [currentUser.favoriteGenre] } }).populate('author')
+      },
 
     allAuthors: async () => {
       const authors = await Author.find({})
@@ -100,14 +130,16 @@ const resolvers = {
         return {
           name: author.name,
           born: author.born,
-          bookCount: Book.collection.countDocuments({ author: { $eq: author.id } })
+          bookCount: Book.find({ author: author.id }).countDocuments()
         }
       })
     },
+
     me: (root, args, context) => {
       return context.currentUser
     }
   },
+
   Mutation: {
     addBook: async (root, args, context) => {
 
@@ -150,8 +182,7 @@ const resolvers = {
       return author
     },
     createUser: (root, args) => {
-      const user = new User({ username: args.username })
-
+      const user = new User({ username: args.username, favoriteGenre: args.favoriteGenre })
       return user.save()
         .catch(error => {
           throw new UserInputError(error.message, {
@@ -170,7 +201,7 @@ const resolvers = {
         username: user.username,
         id: user._id,
       }
-
+      console.log(jwt.sign(userForToken, JWT_SECRET))
       return { value: jwt.sign(userForToken, JWT_SECRET) }
     },
   },
