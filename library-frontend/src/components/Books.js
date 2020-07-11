@@ -50,7 +50,7 @@ const Books = (props) => {
             </th>
           </tr>
           {filteredBooks.map(book =>
-            <Book book={book} />
+            <Book key={book.title} book={book} />
           )}
         </tbody>
       </table>

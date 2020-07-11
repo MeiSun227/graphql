@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"
 import { useQuery } from "@apollo/client"
 import { gql } from '@apollo/client'
 
-const GET_BOOKS_BY_GENRE = gql`
+export const GET_BOOKS_BY_GENRE = gql`
   query filterByGenres {
     filterByGenres {
       title
@@ -15,7 +15,7 @@ const GET_BOOKS_BY_GENRE = gql`
     }
   }
 `
-const BooksbyGenres = () => {
+const BooksbyGenres = (props) => {
     const result = useQuery(GET_BOOKS_BY_GENRE)
     const [books, setBooks] = useState(null)
 
@@ -23,19 +23,23 @@ const BooksbyGenres = () => {
         if (result.data) {
             setBooks(result.data.filterByGenres)
         }
-    })
+    }, [result.data])
+
+    if (!props.show) {
+        return null
+    }
 
     if (books) {
         return (
-        <div>
-            <h2>books</h2>
-            <table>
-                <tbody>
-                    <tr>
-                        <th></th>
-                        <th>author</th>
-                        <th>published</th>
-                    </tr>
+            <div>
+                <h2>books</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th></th>
+                            <th>author</th>
+                            <th>published</th>
+                        </tr>
                         {books.map((a) => (
                             <tr key={a.title}>
                                 <td>{a.title}</td>
@@ -43,15 +47,15 @@ const BooksbyGenres = () => {
                                 <td>{a.published}</td>
                             </tr>
                         ))
-                    }
-                </tbody>
-            </table>
-        </div>
+                        }
+                    </tbody>
+                </table>
+            </div>
         )
     }
 
     return (
-         <div>loading...</div>
+        <div>loading...</div>
     )
 }
 

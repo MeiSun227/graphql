@@ -36,9 +36,7 @@ const Recommendation = (props) => {
                 <tbody>
                 {displayBooks.map(book =>
             <Book book={book} />
-          )}
-                            
-                        
+          )}    
                 </tbody>
             </table>
         </>

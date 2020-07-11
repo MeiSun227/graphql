@@ -6,7 +6,8 @@ import BooksbyGenres from './BooksbyGenres'
 
 
 
-const LibraryView = ({setPage, logout, page, token}) => {
+const LibraryView = ({setPage, logout, page, token, store}) => {
+    console.log(page)
     return (
         <>
             <button onClick={() => setPage('add')}>add book</button>
@@ -15,10 +16,10 @@ const LibraryView = ({setPage, logout, page, token}) => {
             <button onClick={() => setPage('books')}>books</button>
             <button onClick={() => setPage('recommendation')}>Recommendation</button>
             <button onClick={() => setPage('booksbygenres')}>GqlRecommendation</button>
-            <NewBook token={token} show={page === 'add'} />
+            <NewBook token={token} show={page === 'add'} store={store} />
             <Authors token={token} show={page === 'authors'} />
             <Recommendation  show={page==='recommendation'}/>   
-            < BooksbyGenres show={page==='booksbygenres'} token={token} />  
+            < BooksbyGenres show={page==='booksbygenres'}  />  
         </>
     )
 }
