@@ -9,17 +9,23 @@ query{
 }
 } 
 `
+const  BOOK_DETAILS = gql`
+fragment BookDetails on Book{
+  title
+  published
+  author{
+    name
+  }
+  genres
+} 
+`
 export const ALL_BOOKS = gql`
 query  {
   allBooks {
-      title
-      author {
-          name
-      }
-      published
-      genres
+   ...BookDetails
   }
 }
+${BOOK_DETAILS}
 `
 export const CREATE_BOOK = gql`
 mutation createBook(
@@ -74,4 +80,12 @@ query{
       favoriteGenre
   }
 }
+`
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      ...BookDetails
+    }
+  }
+  ${BOOK_DETAILS}
 `
