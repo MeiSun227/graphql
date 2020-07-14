@@ -9,6 +9,7 @@ const { PubSub } = require('apollo-server')
 const pubsub = new PubSub()
 
 mongoose.set('useFindAndModify', false)
+mongoose.set('debug', true)
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('connected to MongoDB')
@@ -129,12 +130,12 @@ const resolvers = {
     },
 
     allAuthors: async () => {
-      const authors = await Author.find({})
+      const authors = await Author.find({}).populate('books')
       return authors.map(author => {
         return {
           name: author.name,
           born: author.born,
-          bookCount: Book.find({ author: author.id }).countDocuments()
+          bookCount: author.books.length
         }
       })
     },
@@ -156,6 +157,8 @@ const resolvers = {
         await author.save();
       }
       const book = new Book({ ...args, author })
+      author.books = author.books.concat(book.id)
+      await author.save()
       try {
         await book.save()
       } catch (error) {
