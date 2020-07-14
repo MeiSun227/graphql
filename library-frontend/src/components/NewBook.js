@@ -5,13 +5,15 @@ import{GET_BOOKS_BY_GENRE}from './BooksbyGenres'
 
 
 
-const NewBook = (props) => {
+const NewBook = (props,{updateCacheWith}) => {
   const [title, setTitle] = useState('')
   const [author, setAuhtor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [createBook] = useMutation(CREATE_BOOK, { refetchQueries: [  {query: ALL_BOOKS},{query: ALL_AUTHORS}, {query:GET_BOOKS_BY_GENRE}]})
+  const [createBook] = useMutation(CREATE_BOOK, { refetchQueries: [  {query: ALL_BOOKS},{query: ALL_AUTHORS}, {query:GET_BOOKS_BY_GENRE}],
+    update: (store, response) => {
+      updateCacheWith(response.data.addBook)    }})
 
   const submit = async (event) => {
     event.preventDefault()
